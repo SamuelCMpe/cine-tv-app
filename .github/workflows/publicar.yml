@@ -1,0 +1,23 @@
+name: Publicar versión
+
+on:
+  push:
+    branches: [main]
+    paths: [cine-tv.apk, VERSION]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Crear release con el APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          v=$(tr -d '[:space:]' < VERSION)
+          gh release delete "v$v" --yes --cleanup-tag || true
+          gh release create "v$v" cine-tv.apk --title "Cine TV $v" --notes "Descarga cine-tv.apk e instálalo en tu Android." --target "$GITHUB_SHA" --latest
